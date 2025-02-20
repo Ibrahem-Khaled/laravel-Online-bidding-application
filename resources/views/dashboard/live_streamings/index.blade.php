@@ -1,143 +1,225 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container mt-5">
-        <h1 class="mb-4">البثوث المباشرة</h1>
+    <div class="container">
+        <h1 class="mb-4">إدارة البثوث المباشرة</h1>
 
-        <!-- زر فتح المودال -->
-        <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#liveStreamingModal">
-            إضافة بث مباشر
+        <!-- زر فتح مودال الإضافة -->
+        <button class="btn btn-success mb-3" data-toggle="modal" data-target="#addModal">
+            <i class="fas fa-plus"></i> إضافة بث جديد
         </button>
 
-        <!-- مودال إضافة / تعديل البث -->
-        <div class="modal fade" id="liveStreamingModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="modalLabel">
-                            {{ isset($liveStreaming) ? 'تعديل البث' : 'إضافة بث مباشر' }}</h5>
-                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="إغلاق"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="liveStreamingForm"
-                            action="{{ isset($liveStreaming) ? route('live_streamings.update', $liveStreaming->id) : route('live_streamings.store') }}"
-                            method="POST">
-                            @csrf
-                            @if (isset($liveStreaming))
-                                @method('PUT')
-                            @endif
-
-                            <div class="mb-3">
-                                <label for="user_id" class="form-label">معرف المستخدم</label>
-                                <select name="user_id" class="form-control" required>
-                                    @foreach ($users as $user)
-                                        <option value="{{ $user->id }}"
-                                            {{ isset($liveStreaming) && $liveStreaming->user_id == $user->id ? 'selected' : '' }}>
-                                            {{ $user->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="agency_id" class="form-label">معرف الوكالة</label>
-                                <select name="agency_id" class="form-control">
-                                    @foreach ($agencies as $agency)
-                                        <option value="{{ $agency->id }}"
-                                            {{ isset($liveStreaming) && $liveStreaming->agency_id == $agency->id ? 'selected' : '' }}>
-                                            {{ $agency->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="title" class="form-label">العنوان</label>
-                                <input type="text" name="title" class="form-control"
-                                    value="{{ isset($liveStreaming) ? $liveStreaming->title : '' }}" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="description" class="form-label">الوصف</label>
-                                <textarea name="description" class="form-control">{{ isset($liveStreaming) ? $liveStreaming->description : '' }}</textarea>
-                            </div>
-                            <div class="mb-3">
-                                <label for="status" class="form-label">الحالة</label>
-                                <select name="status" class="form-control" required>
-                                    <option value="pending"
-                                        {{ isset($liveStreaming) && $liveStreaming->status == 'pending' ? 'selected' : '' }}>
-                                        معلق</option>
-                                    <option value="live"
-                                        {{ isset($liveStreaming) && $liveStreaming->status == 'live' ? 'selected' : '' }}>
-                                        مباشر</option>
-                                    <option value="completed"
-                                        {{ isset($liveStreaming) && $liveStreaming->status == 'completed' ? 'selected' : '' }}>
-                                        مكتمل</option>
-                                    <option value="cancelled"
-                                        {{ isset($liveStreaming) && $liveStreaming->status == 'cancelled' ? 'selected' : '' }}>
-                                        ملغي</option>
-                                </select>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="scheduled_at" class="form-label">الجدولة</label>
-                                <input type="datetime-local" name="scheduled_at" class="form-control"
-                                    value="{{ isset($liveStreaming) && $liveStreaming->scheduled_at ? $liveStreaming->scheduled_at->format('Y-m-d\TH:i') : '' }}">
-                            </div>
-
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">إغلاق</button>
-                                <button type="submit"
-                                    class="btn btn-primary">{{ isset($liveStreaming) ? 'تحديث' : 'إضافة' }}</button>
-                            </div>
-                        </form>
-                    </div>
+        <!-- نموذج البحث والترتيب -->
+        <form action="{{ route('live-streamings.index') }}" method="GET" class="mb-4">
+            <div class="row">
+                <div class="col-md-4">
+                    <input type="text" name="search" class="form-control" placeholder="بحث بالعنوان"
+                        value="{{ request('search') }}">
+                </div>
+                <div class="col-md-3">
+                    <select name="status" class="form-control">
+                        <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>نشط</option>
+                        <option value="">كل الحالات</option>
+                        <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>غير نشط</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="sort" class="form-control">
+                        <option value="title_asc" {{ request('sort') == 'title_asc' ? 'selected' : '' }}>العنوان من أ إلى ي
+                        </option>
+                        <option value="title_desc" {{ request('sort') == 'title_desc' ? 'selected' : '' }}>العنوان من ي إلى
+                            أ</option>
+                        <option value="created_at_asc" {{ request('sort') == 'created_at_asc' ? 'selected' : '' }}>الأقدم
+                            أولاً</option>
+                        <option value="created_at_desc" {{ request('sort') == 'created_at_desc' ? 'selected' : '' }}>الأحدث
+                            أولاً</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">بحث</button>
                 </div>
             </div>
-        </div>
+        </form>
 
-        <!-- قائمة البثوث المباشرة -->
-        <h2 class="mt-5">قائمة البثوث</h2>
-        <table class="table">
+        @include('components.alerts')
+
+        <!-- جدول البيانات -->
+        <table class="table table-hover">
             <thead>
                 <tr>
-                    <th>المعرف</th>
+                    <th>الصورة</th>
                     <th>العنوان</th>
+                    <th>المستخدم</th>
+                    <th>القسم</th>
+                    <th>البث المباشر</th>
                     <th>الحالة</th>
-                    <th>معرف البث</th>
                     <th>الإجراءات</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach ($liveStreamings as $liveStreaming)
+                @foreach ($streams as $stream)
                     <tr>
-                        <td>{{ $liveStreaming->id }}</td>
-                        <td>{{ $liveStreaming->title }}</td>
-                        <td>{{ $liveStreaming->status }}</td>
-                        <td>{{ $liveStreaming->live_streaming_id }}</td>
                         <td>
-                            <button class="btn btn-warning btn-sm" data-toggle="modal" data-target="#liveStreamingModal"
-                                onclick="editLiveStreaming({{ json_encode($liveStreaming) }})">تعديل</button>
-                            <form action="{{ route('live_streamings.destroy', $liveStreaming->id) }}" method="POST"
-                                style="display:inline;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm">حذف</button>
-                            </form>
+                            @if ($stream->image)
+                                <img src="{{ asset('storage/' . $stream->image) }}" width="40" class="rounded-circle">
+                            @else
+                                <img src="https://via.placeholder.com/40" width="40" class="rounded-circle">
+                            @endif
+                        </td>
+                        <td>{{ $stream->title }}</td>
+                        <td>{{ $stream->user->name }}</td>
+                        <td>{{ $stream->category->name ?? 'N/A' }}</td>
+                        <td>{{ $stream->live_stream_id ?? 'N/A' }}</td>
+                        <td>
+                            <span class="badge {{ $stream->status ? 'bg-success' : 'bg-danger' }}">
+                                {{ $stream->status ? 'نشط' : 'غير نشط' }}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" data-toggle="modal"
+                                data-target="#editModal{{ $stream->id }}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" data-toggle="modal"
+                                data-target="#deleteModal{{ $stream->id }}">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </td>
                     </tr>
+
+                    <!-- مودال التعديل لكل بث -->
+                    <div class="modal fade" id="editModal{{ $stream->id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">تعديل البث</h5>
+                                    <button type="button" class="btn-close" data-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <form action="{{ route('live-streamings.update', $stream->id) }}" method="POST"
+                                    enctype="multipart/form-data">
+                                    @csrf
+                                    @method('PUT')
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label>العنوان</label>
+                                            <input type="text" name="title" class="form-control"
+                                                value="{{ $stream->title }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label>المستخدم</label>
+                                            <select name="user_id" class="form-control" required>
+                                                @foreach (App\Models\User::all() as $user)
+                                                    <option value="{{ $user->id }}"
+                                                        {{ $user->id == $stream->user_id ? 'selected' : '' }}>
+                                                        {{ $user->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label>القسم</label>
+                                            <select name="category_id" class="form-control">
+                                                <option value="">اختر القسم</option>
+                                                @foreach (App\Models\Category::all() as $category)
+                                                    <option value="{{ $category->id }}"
+                                                        {{ $category->id == $stream->category_id ? 'selected' : '' }}>
+                                                        {{ $category->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label>الصورة</label>
+                                            <input type="file" name="image" class="form-control">
+                                            @if ($stream->image)
+                                                <img src="{{ asset('storage/' . $stream->image) }}" width="100"
+                                                    class="mt-2">
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">إغلاق</button>
+                                        <button type="submit" class="btn btn-primary">تحديث</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- مودال الحذف لكل بث -->
+                    <div class="modal fade" id="deleteModal{{ $stream->id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">حذف البث</h5>
+                                    <button type="button" class="btn-close" data-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <form action="{{ route('live-streamings.destroy', $stream->id) }}" method="POST">
+                                    @csrf
+                                    @method('DELETE')
+                                    <div class="modal-body">
+                                        <p>هل أنت متأكد من حذف هذا البث؟</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary"
+                                            data-dismiss="modal">إغلاق</button>
+                                        <button type="submit" class="btn btn-danger">حذف</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 @endforeach
             </tbody>
         </table>
+
+        <!-- مودال الإضافة -->
+        <div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">إضافة بث جديد</h5>
+                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="{{ route('live-streamings.store') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label>العنوان</label>
+                                <input type="text" name="title" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label>المستخدم</label>
+                                <select name="user_id" class="form-control" required>
+                                    @foreach (App\Models\User::all() as $user)
+                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label>القسم</label>
+                                <select name="category_id" class="form-control">
+                                    <option value="">اختر القسم</option>
+                                    @foreach (App\Models\Category::all() as $category)
+                                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label>الصورة</label>
+                                <input type="file" name="image" class="form-control">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">حفظ</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <script>
-        function editLiveStreaming(liveStreaming) {
-            document.querySelector('[name=user_id]').value = liveStreaming.user_id;
-            document.querySelector('[name=agency_id]').value = liveStreaming.agency_id;
-            document.querySelector('[name=title]').value = liveStreaming.title;
-            document.querySelector('[name=description]').value = liveStreaming.description;
-            document.querySelector('[name=status]').value = liveStreaming.status;
-            document.querySelector('[name=scheduled_at]').value = liveStreaming.scheduled_at ? liveStreaming.scheduled_at
-                .replace(' ', 'T') : '';
-        }
-    </script>
+    <div class="d-flex justify-content-center mt-4">
+        {{ $streams->links() }}
+    </div>
 @endsection

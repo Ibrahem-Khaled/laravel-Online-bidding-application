@@ -67,12 +67,6 @@
                                             <label class="form-label" for="formName">الاسم الكامل</label>
                                         </div>
                                         <div data-mdb-input-init class="form-outline mb-4">
-                                            <input type="text" name="username" id="formUsername" class="form-control"
-                                                placeholder="أدخل اسم المستخدم" required />
-                                            <label class="form-label" for="formUsername">اسم المستخدم</label>
-                                        </div>
-
-                                        <div data-mdb-input-init class="form-outline mb-4">
                                             <input type="email" name="email" id="formEmail" class="form-control"
                                                 placeholder="أدخل بريدك الإلكتروني" required />
                                             <label class="form-label" for="formEmail">البريد الإلكتروني</label>

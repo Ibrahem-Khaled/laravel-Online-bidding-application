@@ -5,29 +5,24 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class AuctionOffer extends Model
+class LiveChat extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'user_id',
-        'auction_id',
-        'offer_price',
-        'note',
+        'admin_id',
+        'message',
+        'status',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
-    }
+    }   
 
-    public function auction()
+    public function admin()
     {
-        return $this->belongsTo(Auction::class);
-    }
-
-    public function offers()
-    {
-        return $this->hasMany(AuctionOffer::class);
+        return $this->belongsTo(User::class);
     }
 }

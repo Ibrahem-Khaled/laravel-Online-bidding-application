@@ -10,13 +10,16 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('auction_offers', function (Blueprint $table) {
+        Schema::create('live_chats', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('auction_id');
-            $table->float('offer_price');
-            $table->text('note')->nullable();
+            $table->unsignedBigInteger('admin_id')->nullable();
+            $table->string('message');
+            $table->enum('status', ['unread', 'read'])->default('unread');
             $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('admin_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
@@ -25,6 +28,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('auction_offers');
+        Schema::dropIfExists('live_chats');
     }
 };

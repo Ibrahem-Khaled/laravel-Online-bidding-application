@@ -10,13 +10,16 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('auction_offers', function (Blueprint $table) {
+        Schema::create('sliders', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('auction_id');
-            $table->float('offer_price');
-            $table->text('note')->nullable();
+            $table->string('title')->nullable();
+            $table->string('image')->nullable();
+            $table->boolean('status')->default(1);
+
+            $table->unsignedBigInteger('category_id')->nullable();
             $table->timestamps();
+
+            $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
         });
     }
 
@@ -25,6 +28,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('auction_offers');
+        Schema::dropIfExists('sliders');
     }
 };

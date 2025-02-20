@@ -1,143 +1,123 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container mt-4">
-        <h1 class="text-center">لوحة التحكم</h1>
+    <div class="container">
+        <h1 class="text-center my-4">لوحة التحكم</h1>
 
-        <!-- الإحصائيات الإجمالية -->
-        <div class="row mt-4">
+        <!-- الإحصائيات -->
+        <div class="row">
             <div class="col-md-3">
                 <div class="card bg-primary text-white">
-                    <div class="card-body text-center">
-                        <i class="fas fa-users fa-3x mb-2"></i>
-                        <h3>{{ $totalUsers }}</h3>
-                        <p>إجمالي المستخدمين</p>
+                    <div class="card-body">
+                        <h5 class="card-title">إجمالي المستخدمين</h5>
+                        <p class="card-text">{{ $totalUsers }}</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="card bg-success text-white">
-                    <div class="card-body text-center">
-                        <i class="fas fa-user-check fa-3x mb-2"></i>
-                        <h3>{{ $activeUsers }}</h3>
-                        <p>المستخدمين النشطين</p>
+                    <div class="card-body">
+                        <h5 class="card-title">إجمالي المزادات</h5>
+                        <p class="card-text">{{ $totalAuctions }}</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="card bg-warning text-dark">
-                    <div class="card-body text-center">
-                        <i class="fas fa-user-times fa-3x mb-2"></i>
-                        <h3>{{ $inactiveUsers }}</h3>
-                        <p>المستخدمين الغير نشطين</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card bg-danger text-white">
-                    <div class="card-body text-center">
-                        <i class="fas fa-id-card fa-3x mb-2"></i>
-                        <h3>{{ $totalVerificationRequests }}</h3>
-                        <p>طلبات التحقق</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- الإحصائيات الأخرى -->
-        <div class="row mt-4">
-            <div class="col-md-4">
                 <div class="card bg-info text-white">
-                    <div class="card-body text-center">
-                        <i class="fas fa-newspaper fa-3x mb-2"></i>
-                        <h3>{{ $totalPosts }}</h3>
-                        <p>إجمالي المنشورات</p>
+                    <div class="card-body">
+                        <h5 class="card-title">إجمالي البثوث المباشرة</h5>
+                        <p class="card-text">{{ $totalLiveStreams }}</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card bg-secondary text-white">
-                    <div class="card-body text-center">
-                        <i class="fas fa-comments fa-3x mb-2"></i>
-                        <h3>{{ $totalComments }}</h3>
-                        <p>إجمالي التعليقات</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card bg-dark text-white">
-                    <div class="card-body text-center">
-                        <i class="fas fa-envelope fa-3x mb-2"></i>
-                        <h3>{{ $totalMessages }}</h3>
-                        <p>إجمالي الرسائل</p>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">إجمالي الأقسام</h5>
+                        <p class="card-text">{{ $totalCategories }}</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="row mt-4">
+        <!-- الرسوم البيانية -->
+        <div class="row my-5">
             <div class="col-md-6">
-                <div class="card bg-light">
-                    <div class="card-body text-center">
-                        <i class="fas fa-exclamation-triangle fa-3x text-danger mb-2"></i>
-                        <h3 class="text-danger">{{ $totalReports }}</h3>
-                        <p>إجمالي البلاغات</p>
-                    </div>
-                </div>
+                <canvas id="auctionsChart"></canvas>
             </div>
             <div class="col-md-6">
-                <div class="card bg-light">
-                    <div class="card-body text-center">
-                        <i class="fas fa-gift fa-3x text-success mb-2"></i>
-                        <h3 class="text-success">{{ $totalGifts }}</h3>
-                        <p>إجمالي الهدايا</p>
-                    </div>
-                </div>
+                <canvas id="liveStreamsChart"></canvas>
             </div>
         </div>
 
-        <!-- الإحصائيات الإضافية -->
-        <div class="row mt-4">
+        <!-- أحدث المزادات والبثوث -->
+        <div class="row">
             <div class="col-md-6">
-                <div class="card bg-light">
-                    <div class="card-body text-center">
-                        <i class="fas fa-thumbs-up fa-3x text-primary mb-2"></i>
-                        <h3 class="text-primary">{{ $totalLikes }}</h3>
-                        <p>إجمالي الإعجابات</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card bg-light">
-                    <div class="card-body text-center">
-                        <i class="fas fa-share-alt fa-3x text-info mb-2"></i>
-                        <h3 class="text-info">{{ $totalShares }}</h3>
-                        <p>إجمالي المشاركات</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- المنشورات الأكثر تفاعلاً -->
-        <div class="row mt-5">
-            <div class="col-md-12">
-                <h4 class="text-center">أكثر المنشورات تفاعلاً</h4>
+                <h3>أحدث المزادات</h3>
                 <ul class="list-group">
-                    @foreach ($topPosts as $post)
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>
-                                {{ Str::limit($post->content, 50) }}
-                                <span class="text-muted">({{ $post?->created_at?->diffForHumans() }})</span>
-                            </span>
-                            <span>
-                                <span class="badge bg-info">تعليقات: {{ $post->comments_count }}</span>
-                                <span class="badge bg-primary">إعجابات: {{ $post->likes_count }}</span>
-                                <span class="badge bg-warning">مشاركات: {{ $post->shares_count }}</span>
-                            </span>
-                        </li>
+                    @foreach ($recentAuctions as $auction)
+                        <li class="list-group-item">{{ $auction->title }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <h3>أحدث البثوث المباشرة</h3>
+                <ul class="list-group">
+                    @foreach ($recentLiveStreams as $stream)
+                        <li class="list-group-item">{{ $stream->title }}</li>
                     @endforeach
                 </ul>
             </div>
         </div>
     </div>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // رسم بياني للمزادات
+        const auctionsCtx = document.getElementById('auctionsChart').getContext('2d');
+        const auctionsChart = new Chart(auctionsCtx, {
+            type: 'bar',
+            data: {
+                labels: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'],
+                datasets: [{
+                    label: 'عدد المزادات',
+                    data: [12, 19, 3, 5, 2, 3],
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // رسم بياني للبثوث المباشرة
+        const liveStreamsCtx = document.getElementById('liveStreamsChart').getContext('2d');
+        const liveStreamsChart = new Chart(liveStreamsCtx, {
+            type: 'line',
+            data: {
+                labels: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'],
+                datasets: [{
+                    label: 'عدد البثوث المباشرة',
+                    data: [5, 10, 15, 7, 12, 9],
+                    backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
 @endsection
