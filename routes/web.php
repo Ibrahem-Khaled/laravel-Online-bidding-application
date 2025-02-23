@@ -3,6 +3,7 @@
 use App\Http\Controllers\dashboard\AuctionsController;
 use App\Http\Controllers\dashboard\CategoriesController;
 use App\Http\Controllers\dashboard\HomeController;
+use App\Http\Controllers\dashboard\LiveChatController;
 use App\Http\Controllers\dashboard\LiveStreamingsController;
 use App\Http\Controllers\dashboard\SliderController;
 use App\Http\Controllers\dashboard\usersController;
@@ -35,6 +36,17 @@ Route::group(['middleware' => ['auth', 'checkRole:admin'], 'prefix' => 'dashboar
     Route::get('/auctions/{id}/show', [AuctionsController::class, 'show'])->name('auctions.show');
     Route::resource('sliders', SliderController::class);
 
+    // صفحة اختيار المستخدم لبدء الدردشة
+    Route::get('live-chat', [LiveChatController::class, 'index'])->name('live-chat.index');
+
+    // عرض دردشة المستخدم المحدد
+    Route::get('live-chat/user/{userId}', [LiveChatController::class, 'showUserChat'])->name('dashboard.live-chat.user');
+
+    // جلب الرسائل الخاصة بالمستخدم المحدد (AJAX)
+    Route::get('live-chat/fetch/{userId}', [LiveChatController::class, 'fetchUserChatMessages'])->name('dashboard.live-chat.fetch.user');
+
+    // إرسال رسالة للمستخدم المحدد (AJAX)
+    Route::post('live-chat/send/{userId}', [LiveChatController::class, 'sendMessage'])->name('dashboard.live-chat.send');
 });
 
 

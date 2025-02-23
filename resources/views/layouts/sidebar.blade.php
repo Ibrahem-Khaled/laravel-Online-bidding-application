@@ -49,6 +49,11 @@
             <i class="fas fa-fw fa-sliders-h"></i>
             <span>السلايدرات</span></a>
     </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{ route('live-chat.index') }}">
+            <i class="fas fa-fw fa-comments"></i>
+            <span>الشات المساعدة والدعم</span></a>
+    </li>
 
     <!-- Sidebar Toggler (Sidebar) -->
     <div class="text-center d-none d-md-inline">
